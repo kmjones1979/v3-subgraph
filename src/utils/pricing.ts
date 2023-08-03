@@ -85,7 +85,7 @@ export function findEthPerToken(token: Token): BigDecimal {
   // hardcoded fix for incorrect rates
   // if whitelist includes token - get the safe price
   if (STABLE_COINS.includes(token.id)) {
-    if (bundle?.ethPriceUSD) {
+    if (bundle) {
       priceSoFar = safeDiv(ONE_BD, bundle.ethPriceUSD)
     }
   } else {
@@ -98,7 +98,7 @@ export function findEthPerToken(token: Token): BigDecimal {
             // whitelist token is token1
             let token1 = Token.load(pool.token1)
             // get the derived ETH in pool
-            if (token1?.derivedETH) {
+            if (token1) {
               let ethLocked = pool.totalValueLockedToken1.times(token1.derivedETH)
               if (ethLocked.gt(largestLiquidityETH) && ethLocked.gt(MINIMUM_ETH_LOCKED)) {
                 largestLiquidityETH = ethLocked
@@ -110,7 +110,7 @@ export function findEthPerToken(token: Token): BigDecimal {
           if (pool.token1 == token.id) {
             let token0 = Token.load(pool.token0)
             // get the derived ETH in pool
-            if (token0?.derivedETH) {
+            if (token0) {
               let ethLocked = pool.totalValueLockedToken0.times(token0.derivedETH)
               if (ethLocked.gt(largestLiquidityETH) && ethLocked.gt(MINIMUM_ETH_LOCKED)) {
                 largestLiquidityETH = ethLocked
@@ -139,7 +139,7 @@ export function getTrackedAmountUSD(
   token1: Token
 ): BigDecimal {
   let bundle = Bundle.load('1')
-  if (bundle?.ethPriceUSD) {
+  if (bundle) {
     let price0USD = token0.derivedETH.times(bundle.ethPriceUSD)
     let price1USD = token1.derivedETH.times(bundle.ethPriceUSD)
 
