@@ -49,7 +49,7 @@ export function handleInitialize(event: Initialize): void {
 
     if (token0) {
       // update token prices
-      token0.derivedETH = findEthPerToken(token0 as Token)\
+      token0.derivedETH = findEthPerToken(token0 as Token)
       token0.save()
     }
     if (token1) {

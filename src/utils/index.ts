@@ -87,7 +87,8 @@ export function loadTransaction(event: ethereum.Event): Transaction {
   }
   transaction.blockNumber = event.block.number
   transaction.timestamp = event.block.timestamp
-  // need to fix this
+  // need to add this feature to get gasUsed (scheme already exists)
+  // https://github.com/graphprotocol/graph-node/pull/3373 
   //transaction.gasUsed = event.transaction.gasUsed
   transaction.gasLimit = event.transaction.gasLimit
   transaction.gasPrice = event.transaction.gasPrice
