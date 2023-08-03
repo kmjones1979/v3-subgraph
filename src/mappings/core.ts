@@ -1,5 +1,5 @@
-/* eslint-disable prefer-const */
-import { Bundle, Burn, Factory, Mint, Pool, Swap, Tick, Token } from '../types/schema'
+/* eslint-disable prefer-const */ 
+import { Bundle, Burn, Factory, Mint, Pool, Swap, Tick, Token } from '../types/schema';
 import { Pool as PoolABI } from '../types/Factory/Pool'
 import { BigDecimal, BigInt, ethereum } from '@graphprotocol/graph-ts'
 import {
@@ -25,27 +25,38 @@ import { createTick, feeTierToTickSpacing } from '../utils/tick'
 export function handleInitialize(event: Initialize): void {
   // update pool sqrt price and tick
   let pool = Pool.load(event.address.toHexString())
-  pool.sqrtPrice = event.params.sqrtPriceX96
-  pool.tick = BigInt.fromI32(event.params.tick)
-  pool.save()
+  if (pool) {
+    pool.sqrtPrice = event.params.sqrtPriceX96
+    pool.tick = BigInt.fromI32(event.params.tick)
+    pool.save()
   
   // update token prices
-  let token0 = Token.load(pool.token0)
-  let token1 = Token.load(pool.token1)
+    let token0 = Token.load(pool.token0)
+    let token1 = Token.load(pool.token1)
+  
 
-  // update ETH price now that prices could have changed
-  let bundle = Bundle.load('1')
-  bundle.ethPriceUSD = getEthPriceInUSD()
-  bundle.save()
+    // update ETH price now that prices could have changed
+    let bundle = Bundle.load('1')
 
-  updatePoolDayData(event)
-  updatePoolHourData(event)
+    if (bundle) {
+      bundle.ethPriceUSD = getEthPriceInUSD()
+      bundle.save()
+    }
 
-  // update token prices
-  token0.derivedETH = findEthPerToken(token0 as Token)
-  token1.derivedETH = findEthPerToken(token1 as Token)
-  token0.save()
-  token1.save()
+
+    updatePoolDayData(event)
+    updatePoolHourData(event)
+
+    if (token0) {
+      // update token prices
+      token0.derivedETH = findEthPerToken(token0 as Token)\
+      token0.save()
+    }
+    if (token1) {
+      token1.derivedETH = findEthPerToken(token1 as Token)
+      token1.save()
+    }
+  }
 }
 
 export function handleMint(event: MintEvent): void {
@@ -457,10 +468,19 @@ export function handleSwap(event: SwapEvent): void {
   token0HourData.save()
   token1HourData.save()
   poolHourData.save()
-  factory.save()
-  pool.save()
-  token0.save()
-  token1.save()
+
+  if (factory) {
+    factory.save()
+  }
+  if (pool) {
+    pool.save()
+  }
+  if (token0) {
+    token0.save()
+  }
+  if (token1) {
+    token1.save()
+  }
 
   // Update inner vars of current or crossed ticks
   let newTick = pool.tick!
@@ -501,9 +521,11 @@ export function handleFlash(event: FlashEvent): void {
   let poolContract = PoolABI.bind(event.address)
   let feeGrowthGlobal0X128 = poolContract.feeGrowthGlobal0X128()
   let feeGrowthGlobal1X128 = poolContract.feeGrowthGlobal1X128()
-  pool.feeGrowthGlobal0X128 = feeGrowthGlobal0X128 as BigInt
-  pool.feeGrowthGlobal1X128 = feeGrowthGlobal1X128 as BigInt
-  pool.save()
+  if (pool) {
+    pool.feeGrowthGlobal0X128 = feeGrowthGlobal0X128 as BigInt
+    pool.feeGrowthGlobal1X128 = feeGrowthGlobal1X128 as BigInt
+    pool.save()
+  }
 }
 
 function updateTickFeeVarsAndSave(tick: Tick, event: ethereum.Event): void {
