@@ -193,8 +193,8 @@ export function handleMint(event: MintEvent): void {
       }
     
       // Update inner tick vars and save the ticks
-      updateTickFeeVarsAndSave(lowerTick!, event)
-      updateTickFeeVarsAndSave(upperTick!, event)
+      updateTickFeeVarsAndSave(lowerTick, event)
+      updateTickFeeVarsAndSave(upperTick, event)
     }
   }
 }
@@ -369,17 +369,14 @@ export function handleSwap(event: SwapEvent): void {
       let amount0ETH = amount0Abs.times(token0.derivedETH)
       let amount1ETH = amount1Abs.times(token1.derivedETH)
 
-      if (bundle) {
-        let amount0USD = amount0ETH.times(bundle.ethPriceUSD)
-        let amount1USD = amount1ETH.times(bundle.ethPriceUSD)
-      }
-
       // get amount that should be tracked only - div 2 because cant count both input and output as volume
       let amountTotalUSDTracked = getTrackedAmountUSD(amount0Abs, token0 as Token, amount1Abs, token1 as Token).div(
         BigDecimal.fromString('2')
       )
 
-      if (bundle && amount0USD) {
+      if (bundle) {
+        let amount0USD = amount0ETH.times(bundle.ethPriceUSD)
+        let amount1USD = amount1ETH.times(bundle.ethPriceUSD)
         let amountTotalETHTracked = safeDiv(amountTotalUSDTracked, bundle.ethPriceUSD)
         // need to fix this
         let amountTotalUSDUntracked = amount0USD.plus(amount1USD).div(BigDecimal.fromString('2'))
@@ -619,7 +616,7 @@ function updateTickFeeVarsAndSave(tick: Tick, event: ethereum.Event): void {
   tick.feeGrowthOutside1X128 = tickResult.value3
   tick.save()
 
-  updateTickDayData(tick!, event)
+  updateTickDayData(tick, event)
 }
 
 function loadTickUpdateFeeVarsAndSave(tickId: i32, event: ethereum.Event): void {
@@ -631,6 +628,6 @@ function loadTickUpdateFeeVarsAndSave(tickId: i32, event: ethereum.Event): void 
       .concat(tickId.toString())
   )
   if (tick !== null) {
-    updateTickFeeVarsAndSave(tick!, event)
+    updateTickFeeVarsAndSave(tick, event)
   }
 }
